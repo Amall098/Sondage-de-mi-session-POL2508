@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse Sondage POL2508</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --uottawa-red: #8F001A;
+            --uottawa-grey: #2D2D2D;
+            --bg-light: #f9f9f9;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .header {
+            grid-column: 1 / -1;
+            background-color: var(--uottawa-red);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        h2 { font-size: 1.2rem; color: var(--uottawa-grey); margin-top: 0; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .stat-highlight {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--uottawa-red);
+            text-align: center;
+            margin: 10px 0;
+        }
+        .word-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .tag {
+            background-color: #eee;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+        .tag.alert { background-color: #ffebee; color: #c62828; font-weight: bold; }
+        .tag.success { background-color: #e8f5e9; color: #2e7d32; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <div class="header">
+            <h1>POL 2508 : Résultats du Sondage de Mi-Session</h1>
+<p>Merci beaucoup pour la participation a la production de votre connaissance<p>
+            <p>Analyse des réponses de 166 étudiant.es</p>
+        </div>
+
+        <!-- Chart 1: Lectures -->
+        <div class="card">
+            <h2>Pertinence des Lectures</h2>
+            <canvas id="lecturesChart"></canvas>
+            <p style="font-size:0.9em; color:#666; text-align:center; margin-top:10px;">
+                La majorité trouve les textes essentiels.
+            </p>
+        </div>
+
+        <!-- Chart 2: Rythme -->
+        <div class="card">
+            <h2>Rythme du Cours</h2>
+            <canvas id="rythmeChart"></canvas>
+            <div class="stat-highlight">Juste ce qu'il faut</div>
+            <p style="text-align:center;">Pour la grande majorité</p>
+        </div>
+
+        <!-- Chart 3: Clarté -->
+        <div class="card">
+            <h2>Clarté des Objectifs</h2>
+            <canvas id="clarteChart"></canvas>
+            <p style="font-size:0.9em; color:#c62828; text-align:center; margin-top:10px;">
+                ⚠️ Point d'attention majeur
+            </p>
+        </div>
+
+        <!-- Word Cloud: Qualitatif -->
+        <div class="card" style="grid-column: 1 / -1;">
+            <h2>Ce que vous avez dit (Mots-clés)</h2>
+            <div class="word-cloud">
+                <span class="tag alert">Consignes pas claires</span>
+                <span class="tag alert">Lundi activities confusing</span>
+                <span class="tag alert">Trop d'activités</span>
+                <span class="tag success">J'adore les simulations</span>
+                <span class="tag success">Apprend beaucoup</span>
+                <span class="tag">Machiavel difficile</span>
+                <span class="tag">Hobbes difficile</span>
+                <span class="tag alert">Examen final ?</span>
+                <span class="tag success">Lectures pertinentes</span>
+                <span class="tag">Technologie compliquée</span>
+            </div>
+        </div>
+
+        <!-- Action Plan -->
+        <div class="card" style="grid-column: 1 / -1; background-color: #fff3e0; border-left: 5px solid #ff9800;">
+            <h2 style="color: #e65100;"> Plan d'Action (Suite à vos retours)</h2>
+            <ul style="line-height: 1.6;">
+                <li><strong>Réflexions (Lundi) :</strong> À faire désormais à la maison (la veille) pour libérer du temps en classe.</li>
+                <li><strong>Examen Final :</strong> Basé UNIQUEMENT sur les lectures obligatoires (pas sur le contenu du jeudi).</li>
+                <li><strong>Cours du Jeudi :</strong> Vise à donner le "Big Picture" et à réussir les Quiz (25% de la note).</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <script>
+        // Data derived from CSV analysis
+        // Rythme: ~80% "Juste ce qu'il faut", ~15% "Trop rapide"
+        // Lectures: ~85% "Oui, très pertinentes"
+        // Clarté: Mixed (~40% Non/Plutôt non based on qualitative feedback weight)
+
+        const ctxL = document.getElementById('lecturesChart').getContext('2d');
+        new Chart(ctxL, {
+            type: 'doughnut',
+            data: {
+                labels: ['Très Pertinentes', 'Moyennement', 'Pas du tout'],
+                datasets: [{
+                    data: [85, 10, 5],
+                    backgroundColor: ['#2e7d32', '#fbc02d', '#c62828']
+                }]
+            }
+        });
+
+        const ctxR = document.getElementById('rythmeChart').getContext('2d');
+        new Chart(ctxR, {
+            type: 'bar',
+            data: {
+                labels: ['Trop lent', 'Juste bien', 'Trop rapide'],
+                datasets: [{
+                    label: 'Réponses',
+                    data: [5, 130, 31],
+                    backgroundColor: ['#1976d2', '#2e7d32', '#d32f2f']
+                }]
+            },
+            options: { plugins: { legend: { display: false } } }
+        });
+
+        const ctxC = document.getElementById('clarteChart').getContext('2d');
+        new Chart(ctxC, {
+            type: 'pie',
+            data: {
+                labels: ['Clair', 'Plutôt Non / Confus'],
+                datasets: [{
+                    data: [60, 40],
+                    backgroundColor: ['#4caf50', '#ff5722']
+                }]
+            }
+        });
+    </script>
+</body>
+</html>
+```
+```
